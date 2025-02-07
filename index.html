@@ -1,81 +1,88 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>수열의 귀납적 정의</title>
+  <meta charset="UTF-8">
+  <title>수열의 귀납적 정의</title>
 
-<!-- MathJax for LaTeX rendering -->
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+  <!-- MathJax for LaTeX rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
 
-<style>
-  body {
-    background-color: #fff;
-    color: #000;
-    font-family: sans-serif;
-    margin: 20px;
-  }
-  #gameContainer {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  h1, h2, h3 {
-    margin: 10px 0;
-  }
-  #energyBarContainer {
-    width: 300px;
-    height: 20px;
-    background-color: #ccc;
-    margin-bottom: 10px;
-    overflow: hidden;
-    position: relative;
-  }
-  #energyBar {
-    width: 100%;
-    height: 100%;
-    background-color: #000; /* 검정 막대 */
-    transition: width 0.2s linear;
-  }
-  #overallTime {
-    float: right;
-  }
-  .hidden {
-    display: none;
-  }
-  .choiceBtn {
-    display: block;
-    margin: 6px 0;
-    background-color: #eee;
-    border: 1px solid #aaa;
-    padding: 8px;
-    cursor: pointer;
-    text-align: left;
-  }
-  #response {
-    white-space: pre-wrap;
-    color: #333;
-    margin-top: 10px;
-  }
-  #startScreen, #quizScreen, #endScreen {
-    border: 1px solid #333;
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-  .difficultyBtn {
-    margin: 8px 5px;
-    padding: 8px;
-    background-color: #fff;
-    border: 2px solid #000;
-    cursor: pointer;
-  }
-  #nameInput {
-    width: 150px;
-    margin-bottom: 10px;
-  }
-  #questionArea {
-    margin: 15px 0;
-    min-height: 120px;
-  }
-</style>
+  <style>
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #gameContainer {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1, h2, h3 {
+      margin: 10px 0;
+    }
+    #energyBarContainer {
+      width: 300px;
+      height: 20px;
+      background-color: #ccc;
+      margin-bottom: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    #energyBar {
+      width: 100%;
+      height: 100%;
+      background-color: #000; /* 검정 막대 */
+      transition: width 0.2s linear;
+    }
+    #overallTime {
+      float: right;
+    }
+    .hidden {
+      display: none;
+    }
+    .choiceBtn {
+      display: block;
+      margin: 6px 0;
+      background-color: #eee;
+      border: 1px solid #aaa;
+      padding: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+    #response {
+      white-space: pre-wrap;
+      color: #333;
+      margin-top: 10px;
+    }
+    #startScreen, #quizScreen, #endScreen {
+      border: 1px solid #333;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .difficultyBtn {
+      margin: 8px 5px;
+      padding: 8px;
+      background-color: #fff;
+      border: 2px solid #000;
+      cursor: pointer;
+    }
+    #nameInput {
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    #questionArea {
+      margin: 15px 0;
+      min-height: 120px;
+    }
+    #nextBtn {
+      margin-top: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      background-color: #eee;
+      border: 1px solid #aaa;
+    }
+  </style>
 </head>
 <body>
 
@@ -106,6 +113,7 @@
     <div id="questionArea"></div>
     <div id="choiceArea"></div>
     <div id="feedback" style="margin-top:10px;"></div>
+    <button id="nextBtn" class="hidden" onclick="nextQuestion()">다음문제</button>
   </div>
 
   <!-- 종료 화면 -->
@@ -120,285 +128,274 @@
 
 <script>
 // ---------------------------------------------------
-// 모든 문제 데이터 (1~11, 13~15, 17~27, 31~46, 49~51, 54~55, 56~66, 68~72)
-// 분수는 \\frac{}, 곱셈은 "\\cdot", "문제: 5번째 항?"로 수정
+// 문제 데이터
+// (문제 번호: 1~11, 13~15, 17~27, 31~46, 49~51, 54~55, 56~66, 68~72)
+// 분수는 \\frac{}, 곱셈은 \\cdot, "문제: 5번째 항?"으로 통일
 // ---------------------------------------------------
 const quizData = [
   {
     condition: "a_{1}=1,\\; a_{2}=2,\\; a_{n+2} = a_{n+1} + a_{n}",
     question: "5번째 항?",
-    choices: ["5","7","8","9"],
+    choices: ["5", "7", "8", "9"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{2}=3,\\; a_{n+2} = 2a_{n+1} - a_{n}",
     question: "5번째 항?",
-    choices: ["7","8","9","10"],
+    choices: ["7", "8", "9", "10"],
     correct: 2
   },
   {
     condition: "a_{1}=\\frac{1}{2},\\; a_{2}=-1,\\; \\frac{a_{n+2}}{a_{n+1}} = \\frac{a_{n+1}}{a_{n}}",
     question: "5번째 항?",
-    choices: ["-4","2","4","8"],
+    choices: ["-4", "2", "4", "8"],
     correct: 3
   },
   {
     condition: "a_{1}=1,\\; a_{2}=-2,\\; \\bigl(a_{n+1}\\bigr)^{2} = a_{n}\\cdot a_{n+2}",
     question: "5번째 항?",
-    choices: ["8","12","16","20"],
+    choices: ["8", "12", "16", "20"],
     correct: 2
   },
   {
     condition: "a_{1}=3,\\; a_{2}=7,\\; a_{n+2} - a_{n+1} = a_{n+1} - a_{n}",
     question: "5번째 항?",
-    choices: ["15","17","18","19"],
+    choices: ["15", "17", "18", "19"],
     correct: 3
   },
   {
     condition: "a_{1}=32,\\; \\frac{a_{n+1}}{a_{n}} = \\frac{1}{2}",
     question: "5번째 항?",
-    choices: ["2","4","8","16"],
+    choices: ["2", "4", "8", "16"],
     correct: 0
   },
   {
     condition: "a_{1}=2,\\; a_{n+1} = 2\\,a_{n}",
     question: "5번째 항?",
-    choices: ["16","32","64","128"],
+    choices: ["16", "32", "64", "128"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = 3\\,a_{n}",
     question: "5번째 항?",
-    choices: ["27","54","81","243"],
+    choices: ["27", "54", "81", "243"],
     correct: 2
   },
   {
     condition: "a_{1}=-3,\\; a_{2}=0,\\; a_{n+2} - a_{n+1} = a_{n+1} - a_{n}",
     question: "5번째 항?",
-    choices: ["6","7","9","10"],
+    choices: ["6", "7", "9", "10"],
     correct: 2
   },
   {
     condition: "a_{1}=3,\\; a_{2}=-1,\\; 2\\,a_{n+1} = a_{n} + a_{n+2}",
     question: "5번째 항?",
-    choices: ["-13","-11","-9","3"],
+    choices: ["-13", "-11", "-9", "3"],
     correct: 0
   },
   {
     condition: "a_{1}=-4,\\; a_{n+1} = a_{n} + 2",
     question: "5번째 항?",
-    choices: ["2","3","4","6"],
+    choices: ["2", "3", "4", "6"],
     correct: 2
   },
   {
     condition: "a_{1}=2,\\; a_{n+1} = a_{n} + 3",
     question: "5번째 항?",
-    choices: ["13","14","15","17"],
+    choices: ["13", "14", "15", "17"],
     correct: 1
   },
   {
     condition: "a_{1}=9,\\; a_{2}=-3,\\; a_{n+1} = -\\frac{1}{3}\\,a_{n}",
     question: "5번째 항?",
-    choices: ["-\\tfrac{1}{3}","\\tfrac{1}{9}","-\\tfrac{1}{9}","1"],
+    choices: ["-\\tfrac{1}{3}", "\\tfrac{1}{9}", "-\\tfrac{1}{9}", "1"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = 2\\,a_{n}",
     question: "5번째 항?",
-    choices: ["8","12","16","18"],
+    choices: ["8", "12", "16", "18"],
     correct: 2
   },
   {
     condition: "a_{1}=9,\\; a_{n+1} = 3\\,a_{n}",
     question: "5번째 항?",
-    choices: ["243","486","729","2187"],
+    choices: ["243", "486", "729", "2187"],
     correct: 2
   },
   {
     condition: "a_{1}=11,\\; a_{2}=19,\\; 2\\,a_{n+1} = a_{n} + a_{n+2}",
     question: "5번째 항?",
-    choices: ["35","39","43","47"],
+    choices: ["35", "39", "43", "47"],
     correct: 2
   },
   {
     condition: "a_{1}=100,\\; a_{n+1} = a_{n} - 3",
     question: "5번째 항?",
-    choices: ["85","88","91","94"],
+    choices: ["85", "88", "91", "94"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{2}=2,\\; \\bigl(a_{n+1}\\bigr)^{2} = a_{n}\\cdot a_{n+2}",
     question: "5번째 항?",
-    choices: ["12","14","15","16"],
+    choices: ["12", "14", "15", "16"],
     correct: 3
   },
   {
     condition: "a_{1}=3,\\; a_{2}=2,\\; 2\\,a_{n+1} = a_{n} + a_{n+2}",
     question: "5번째 항?",
-    choices: ["-1","0","1","2"],
+    choices: ["-1", "0", "1", "2"],
     correct: 0
   },
   {
     condition: "a_{1}=3,\\; a_{n+1} = 2\\,a_{n}",
     question: "5번째 항?",
-    choices: ["24","36","48","96"],
+    choices: ["24", "36", "48", "96"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{2}=\\frac{1}{4},\\; \\bigl(a_{n+1}\\bigr)^{2} = a_{n}\\cdot a_{n+2}",
     question: "5번째 항?",
-    choices: ["\\tfrac{1}{64}","\\tfrac{1}{256}","\\tfrac{1}{512}","\\tfrac{1}{1024}"],
+    choices: ["\\tfrac{1}{64}", "\\tfrac{1}{256}", "\\tfrac{1}{512}", "\\tfrac{1}{1024}"],
     correct: 1
   },
   {
     condition: "a_{1}=2,\\; a_{2}=3,\\; \\bigl(a_{n+1}\\bigr)^{2} = a_{n}\\cdot a_{n+2}",
     question: "5번째 항?",
-    choices: ["\\tfrac{27}{4}","\\tfrac{81}{8}","10","12"],
+    choices: ["\\tfrac{27}{4}", "\\tfrac{81}{8}", "10", "12"],
     correct: 1
   },
   {
     condition: "a_{1}=6,\\; a_{2}=3,\\; \\frac{a_{n+2}}{a_{n+1}} = \\frac{a_{n+1}}{a_{n}}",
     question: "5번째 항?",
-    choices: ["\\tfrac{1}{2}","\\tfrac{3}{8}","\\tfrac{5}{8}","1"],
+    choices: ["\\tfrac{1}{2}", "\\tfrac{3}{8}", "\\tfrac{5}{8}", "1"],
     correct: 1
   },
   {
     condition: "a_{1}=-1,\\; a_{n+1} = 2\\,a_{n}",
     question: "5번째 항?",
-    choices: ["-16","-12","-8","8"],
+    choices: ["-16", "-12", "-8", "8"],
     correct: 0
   },
   {
     condition: "a_{1}=2,\\; a_{2}=6,\\; 2\\,a_{n+1} = a_{n} + a_{n+2}",
     question: "5번째 항?",
-    choices: ["14","16","18","20"],
+    choices: ["14", "16", "18", "20"],
     correct: 2
   },
   {
     condition: "a_{1}=-5,\\; a_{n+1} = a_{n} + 4",
     question: "5번째 항?",
-    choices: ["9","10","11","12"],
+    choices: ["9", "10", "11", "12"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{2}=3,\\; a_{n+2} = 2\\,a_{n+1} + a_{n}",
     question: "5번째 항?",
-    choices: ["37","41","43","45"],
+    choices: ["37", "41", "43", "45"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = 2\\,a_{n} + 3n",
     question: "5번째 항?",
-    choices: ["88","90","94","96"],
+    choices: ["88", "90", "94", "96"],
     correct: 2
   },
   {
     condition: "a_{1}=\\frac{1}{2},\\; (n+1)\\,a_{n+1} = 2n\\,a_{n}",
     question: "5번째 항?",
-    choices: ["\\tfrac{4}{3}","\\tfrac{3}{2}","\\tfrac{8}{5}","\\tfrac{5}{4}"],
+    choices: ["\\tfrac{4}{3}", "\\tfrac{3}{2}", "\\tfrac{8}{5}", "\\tfrac{5}{4}"],
     correct: 2
   },
   {
     condition: "a_{1}=5,\\; a_{n+1} = a_{n} + n^{2}",
     question: "5번째 항?",
-    choices: ["33","35","37","45"],
+    choices: ["33", "35", "37", "45"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{2}=1,\\; a_{n+2} = a_{n+1} + a_{n}",
     question: "5번째 항?",
-    choices: ["3","4","5","6"],
+    choices: ["3", "4", "5", "6"],
     correct: 2
   },
   {
     condition: "a_{1}=3,\\; a_{n+1} = 3\\,a_{n} - 2",
     question: "5번째 항?",
-    choices: ["161","163","167","169"],
+    choices: ["161", "163", "167", "169"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = \\frac{2n - 1}{2n + 1}\\,a_{n}",
     question: "5번째 항?",
-    choices: ["\\tfrac{1}{7}","\\tfrac{1}{9}","\\tfrac{1}{11}","\\tfrac{1}{13}"],
+    choices: ["\\tfrac{1}{7}", "\\tfrac{1}{9}", "\\tfrac{1}{11}", "\\tfrac{1}{13}"],
     correct: 1
   },
   {
     condition: "a_{1}=2,\\; a_{n+1} = a_{n} + n + 1",
     question: "5번째 항?",
-    choices: ["15","16","17","18"],
+    choices: ["15", "16", "17", "18"],
     correct: 1
   },
   {
     condition: "a_{1}=-1,\\; a_{n+1} = 3\\,a_{n} + 2n",
     question: "5번째 항?",
-    choices: ["31","33","35","37"],
+    choices: ["31", "33", "35", "37"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = \\frac{1}{a_{n}} + 2",
     question: "5번째 항?",
-    choices: ["\\tfrac{17}{7}","\\tfrac{19}{8}","\\tfrac{41}{17}","\\tfrac{43}{17}"],
+    choices: ["\\tfrac{17}{7}", "\\tfrac{19}{8}", "\\tfrac{41}{17}", "\\tfrac{43}{17}"],
     correct: 2
   },
   {
     condition: "a_{1}=2,\\; a_{n+1} = \\frac{3n}{n+2}\\,a_{n}",
     question: "5번째 항?",
-    choices: ["\\tfrac{51}{5}","\\tfrac{52}{5}","\\tfrac{54}{5}","\\tfrac{56}{5}"],
+    choices: ["\\tfrac{51}{5}", "\\tfrac{52}{5}", "\\tfrac{54}{5}", "\\tfrac{56}{5}"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = a_{n} + (2n + 1)",
     question: "5번째 항?",
-    choices: ["23","25","27","29"],
+    choices: ["23", "25", "27", "29"],
     correct: 1
   },
   {
     condition: "a_{1}=2,\\; a_{n+1} = 2\\,a_{n} - 1",
     question: "5번째 항?",
-    choices: ["15","17","19","21"],
+    choices: ["15", "17", "19", "21"],
     correct: 1
   },
   {
     condition: "a_{1}=-1,\\; a_{n+1} = n\\,a_{n}",
     question: "5번째 항?",
-    choices: ["-22","-24","-26","-28"],
+    choices: ["-22", "-24", "-26", "-28"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = 2\\,a_{n} + n",
     question: "5번째 항?",
-    choices: ["40","42","44","46"],
+    choices: ["40", "42", "44", "46"],
     correct: 1
   },
   {
     condition: "a_{1}=1,\\; \\frac{a_{n+1}}{a_{n}} = 2^{n}\\,(\\text{제10항})",
     question: "10번째 항?",
-    choices: ["2^{40}","2^{42}","2^{45}","2^{48}"],
+    choices: ["2^{40}", "2^{42}", "2^{45}", "2^{48}"],
     correct: 2
   },
   {
     condition: "a_{1}=3,\\; a_{2}=5,\\; a_{n+2} - 3\\,a_{n+1} + 2\\,a_{n} = 0\\,(\\text{제10항})",
     question: "10번째 항?",
-    choices: ["1023","1024","1025","1026"],
+    choices: ["1023", "1024", "1025", "1026"],
     correct: 2
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = a_{n} + 4n\\,(\\text{제10항})",
     question: "10번째 항?",
-    choices: ["177","179","181","185"],
+    choices: ["177", "179", "181", "185"],
     correct: 2
-  },
-  {
-    condition: "a_{1}=\\frac{1}{2},\\; a_{n+1} = a_{n} + \\frac{1}{n\\,(n+1)}}",
-    question: "5번째 항?",
-    choices: ["\\tfrac{5}{4}","\\tfrac{13}{10}","\\tfrac{7}{5}","\\tfrac{3}{2}"],
-    correct: 1
-  },
-  {
-    condition: "a_{1}=2,\\; a_{n+1} = \\frac{n}{n+1}\\,a_{n}",
-    question: "5번째 항?",
-    choices: ["\\tfrac{2}{5}","\\tfrac{2}{3}","\\tfrac{4}{5}","\\tfrac{6}{5}"],
-    correct: 0
   },
   {
     condition: "a_{1}=1,\\; a_{n+1} = \\frac{n+2}{n}\\,a_{n}",
@@ -434,13 +431,14 @@ const quizData = [
     correct: 0
   },
   {
+    // 수정된 문제: 원래 보기는 일반항이 잘못되어 있었음 → 정답은 aₙ = 6⁄(n+1)
     condition: "a_{1}=3,\\; a_{n+1} = \\frac{n+1}{n+2}\\,a_{n}",
     question: "일반항?",
     choices: [
+      "\\dfrac{6}{n+1}",
       "\\dfrac{3}{n+1}",
       "3\\cdot\\dfrac{n+2}{n+1}",
-      "\\dfrac{3n}{n+1}",
-      "\\dfrac{3\\,(n+2)}{n+1}"
+      "3\\cdot\\dfrac{n}{n+2}"
     ],
     correct: 0
   },
@@ -578,8 +576,8 @@ const quizData = [
   }
 ];
 
-// 이하 코드(난이도별 시간 설정, 배점, 에너지바 로직, 점수 계산, 무한반복 등)는 동일
-// ----------------------------------------------------------------
+// 이하 게임 로직
+
 let shuffledQuiz = [];
 let currentIndex = 0;
 let score = 0;
@@ -625,10 +623,13 @@ function startGame(diff) {
 
 function updateOverallTime(){
   const elapsedSec = Math.floor((Date.now() - gameStartTime)/1000);
-  document.getElementById("overallTime").textContent = "전체경과: "+elapsedSec+"초";
+  document.getElementById("overallTime").textContent = "전체경과: " + elapsedSec + "초";
 }
 
 function showNextProblem(){
+  // 다음문제 버튼 숨기기
+  document.getElementById("nextBtn").classList.add("hidden");
+  // 에너지바 초기화
   currentEnergy = 1;
   updateEnergyBar();
 
@@ -641,18 +642,17 @@ function showNextProblem(){
 
   if(currentIndex >= shuffledQuiz.length){
     currentIndex = 0;
-    // shuffleArray(shuffledQuiz); // 무한 랜덤 출제 원하면 해제
   }
   const qData = shuffledQuiz[currentIndex];
 
   document.getElementById("questionArea").innerHTML =
-    "<p><b>조건</b>: \\(" + qData.condition + "\\)</p>"
-    + "<p><b>문제</b>: " + qData.question + "</p>";
+    "<p><b>조건</b>: \\(" + qData.condition + "\\)</p>" +
+    "<p><b>문제</b>: " + qData.question + "</p>";
 
-  let cArr = qData.choices.map((val,i)=>({txt: val, idx:i}));
+  let cArr = qData.choices.map((val,i)=>({txt: val, idx: i}));
   shuffleArray(cArr);
   let choiceHTML = "";
-  cArr.forEach(obj=>{
+  cArr.forEach(obj => {
     choiceHTML += `<button class="choiceBtn" onclick="checkAnswer(${obj.idx})">\\(${obj.txt}\\)</button>`;
   });
   document.getElementById("choiceArea").innerHTML = choiceHTML;
@@ -662,10 +662,10 @@ function showNextProblem(){
 }
 
 function tickEnergy(){
-  if(questionTime===Infinity) return;
+  if(questionTime === Infinity) return;
   currentEnergy -= 1/questionTime;
-  if(currentEnergy<=0){
-    currentEnergy=0;
+  if(currentEnergy <= 0){
+    currentEnergy = 0;
     loseLifeBecauseTime();
   }
   updateEnergyBar();
@@ -673,50 +673,59 @@ function tickEnergy(){
 
 function updateEnergyBar(){
   const bar = document.getElementById("energyBar");
-  bar.style.width = (currentEnergy*100)+"%";
+  bar.style.width = (currentEnergy * 100) + "%";
 }
 
 function loseLifeBecauseTime(){
   clearInterval(intervalEnergy);
   lives--;
   document.getElementById("lives").textContent = lives;
-  if(lives<=0){
+  if(lives <= 0){
     endGame();
-  } else {
-    currentIndex++;
-    showNextProblem();
+    return;
   }
+  const qData = shuffledQuiz[currentIndex];
+  document.getElementById("feedback").textContent = "시간 초과! 정답은 \\(" + qData.choices[qData.correct] + "\\)";
+  MathJax.typeset();
+  showNextButton();
 }
 
 function checkAnswer(choiceIdx){
   clearInterval(intervalEnergy);
-
   const qData = shuffledQuiz[currentIndex];
-  const correctIdx = qData.correct;
-  if(choiceIdx===correctIdx){
-    let pts=0;
-    if(difficulty==="최상") pts=20;
-    else if(difficulty==="상") pts=15;
-    else if(difficulty==="중") pts=13;
-    else pts=10;
+  if(choiceIdx === qData.correct){
+    let pts = 0;
+    if(difficulty === "최상") pts = 20;
+    else if(difficulty === "상") pts = 15;
+    else if(difficulty === "중") pts = 13;
+    else pts = 10;
     score += pts;
     document.getElementById("score").textContent = score;
-    document.getElementById("feedback").textContent = "정답! +"+pts+"점";
+    document.getElementById("feedback").textContent = "정답! +" + pts + "점";
   } else {
     lives--;
     document.getElementById("lives").textContent = lives;
-    const ansLatex = "\\(" + qData.choices[correctIdx] + "\\)";
-    document.getElementById("feedback").textContent =
-      "틀렸습니다! 정답은 " + ansLatex;
+    const ansLatex = "\\(" + qData.choices[qData.correct] + "\\)";
+    document.getElementById("feedback").textContent = "틀렸습니다! 정답은 " + ansLatex;
     MathJax.typeset();
-
-    if(lives<=0){
+    if(lives <= 0){
       endGame();
       return;
     }
   }
+  // 답안을 확인한 후에만 "다음문제" 버튼 표시
+  showNextButton();
+}
+
+function showNextButton(){
+  document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextQuestion(){
+  // "다음문제" 버튼 숨기고 다음 문제로 넘어감
+  document.getElementById("nextBtn").classList.add("hidden");
   currentIndex++;
-  setTimeout(showNextProblem, 1500);
+  showNextProblem();
 }
 
 function endGame(){
@@ -728,19 +737,19 @@ function endGame(){
 }
 
 function sendScore(){
-  const elapsedTimeSec = Math.floor((Date.now()-gameStartTime)/1000);
+  const elapsedTimeSec = Math.floor((Date.now() - gameStartTime)/1000);
   saveData("수열의 귀납적 정의", playerName, score, elapsedTimeSec);
 }
 
-// 간단 셔플
+// 간단 셔플 함수
 function shuffleArray(arr){
-  for(let i=arr.length-1; i>0; i--){
-    const r = Math.floor(Math.random()*(i+1));
+  for(let i = arr.length - 1; i > 0; i--){
+    const r = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[r]] = [arr[r], arr[i]];
   }
 }
 
-// 서버전송 함수
+// 서버 전송 함수
 async function saveData(game, name, score, elapsedTime){
   const FUNCTION_URL = "https://us-central1-record-f420d.cloudfunctions.net/report";
 
